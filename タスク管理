@@ -1,373 +1,1453 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#4CAF50">
-    <title>タスク管理</title>
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi44K/44K544Kv566h55CGIiwic2hvcnRfbmFtZSI6IuOCv+OCueOCryIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiM0Q0FGNTAiLCJzdGFydF91cmwiOiIuIn0=">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ドラマ相関図ノート</title>
+  <style>
+    :root {
+      --ink: #1f2933;
+      --muted: #4b5563;
+      --bg: #f7f9fb;
+      --card: #ffffff;
+      --accent: #9b5de5;
+      --accent-2: #00a8e8;
+      --line: #e5e7eb;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      --radius: 14px;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    * { box-sizing: border-box; }
 
-        .header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: "Inter", "Hiragino Sans", "Noto Sans JP", system-ui, -apple-system, sans-serif;
+      color: var(--ink);
+      line-height: 1.6;
+    }
 
-        .container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-            width: 100%;
-        }
+    header {
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      color: white;
+      padding: 32px 24px 48px;
+      box-shadow: var(--shadow);
+    }
 
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: 0.02em;
+    }
 
-        #taskInput {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
+    header p {
+      margin: 0;
+      opacity: 0.92;
+    }
 
-        #taskInput:focus {
-            border-color: #4CAF50;
-        }
+    main {
+      margin: -32px auto 64px;
+      padding: 0 20px;
+      max-width: 1200px;
+    }
 
-        #addBtn {
-            padding: 12px 24px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
 
-        #addBtn:hover {
-            background-color: #45a049;
-        }
+    @media (min-width: 900px) {
+      .grid.two {
+        grid-template-columns: 1.05fr 0.95fr;
+      }
+      .grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
 
-        #addBtn:active {
-            transform: scale(0.98);
-        }
+    section {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+    }
 
-        .task-list {
-            list-style: none;
-        }
+    section h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
 
-        .task-item {
-            background: white;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.3s;
-        }
+    section h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      color: var(--muted);
+    }
 
-        .task-item.completed {
-            opacity: 0.6;
-        }
+    form .row {
+      display: grid;
+      gap: 12px;
+    }
 
-        .task-item.completed .task-text {
-            text-decoration: line-through;
-            color: #888;
-        }
+    @media (min-width: 720px) {
+      form .row.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      form .row.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
 
-        .task-checkbox {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-            accent-color: #4CAF50;
-        }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+    }
 
-        .task-text {
-            flex: 1;
-            font-size: 16px;
-            word-break: break-word;
-        }
+    input[type="text"],
+    input[type="color"],
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: #fdfefe;
+    }
 
-        .task-date {
-            font-size: 12px;
-            color: #666;
-            white-space: nowrap;
-        }
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
 
-        .delete-btn {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
 
-        .delete-btn:hover {
-            background-color: #da190b;
-        }
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
 
-        .empty-state {
-            text-align: center;
-            color: #999;
-            padding: 40px;
-            font-size: 18px;
-        }
+    button.primary {
+      background: linear-gradient(120deg, var(--accent), var(--accent-2));
+      color: white;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
 
-        .offline-indicator {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #ff9800;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
-            display: none;
-            z-index: 1000;
-        }
+    button.secondary {
+      background: #eef2f7;
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .task-item {
-                flex-wrap: wrap;
-            }
-            
-            .task-date {
-                width: 100%;
-                margin-top: 5px;
-            }
-        }
-    </style>
+    button:hover { transform: translateY(-1px); }
+
+    .button-ghost {
+      background: #f9fafb;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .character-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .character-card .avatar {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+    }
+
+    .character-card .color-band {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 6px;
+      background: var(--accent);
+      opacity: 0.85;
+    }
+
+    .character-card h4 {
+      margin: 10px 0 4px;
+      font-size: 16px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      font-size: 12px;
+      color: var(--muted);
+      margin-right: 6px;
+      margin-bottom: 6px;
+      border: 1px solid var(--line);
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      font-size: 13px;
+      color: #0b7a3c;
+      background: #e6f6ed;
+      border: 1px solid #9cd4b3;
+      padding: 8px 10px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      opacity: 0;
+      transition: opacity 160ms ease;
+    }
+
+    .status.show {
+      opacity: 1;
+    }
+
+    .avatar-preview {
+      width: 100%;
+      height: 150px;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      background: #f9fafb;
+      margin-bottom: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .tag {
+      background: rgba(155, 93, 229, 0.08);
+      color: #6b21a8;
+      border-color: rgba(155, 93, 229, 0.2);
+    }
+
+    .muted { color: var(--muted); }
+
+    .relationship {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fdfdfd;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0, 168, 232, 0.1);
+      color: #046fa7;
+      border: 1px solid rgba(0, 168, 232, 0.16);
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .board .node {
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #fbfcfe;
+    }
+
+    .node h4 { margin: 0 0 8px; }
+
+    .node ul { margin: 0; padding-left: 18px; }
+
+    .bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .stat {
+      background: #eef2f7;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .stat strong { display: block; font-size: 18px; }
+
+    .color-swatches {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .color-swatch {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      padding: 0;
+      cursor: pointer;
+      background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+    }
+
+    .color-swatch:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .hidden-input { display: none; }
+
+    .character-card.editing {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(155, 93, 229, 0.14), var(--shadow);
+    }
+
+    .inline-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .inline-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .color-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      display: inline-block;
+    }
+
+    .relation-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+  </style>
+  <!-- JSZip（ZIP機能を使う場合） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js" integrity="sha512-/xWvY2uH1k7eZ4oUu+Fj0mYtLZgZk6xK3/4yvqk9s0QvNa7nNqK1r1b+O7eQxI0a5g5m8U3u8u8X8bYoj9s0Rw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
-    <div class="header">
-        <h1>タスク管理</h1>
-    </div>
-    
-    <div class="container">
-        <div class="input-group">
-            <input type="text" id="taskInput" placeholder="新しいタスクを入力..." />
-            <button id="addBtn">追加</button>
+  <header>
+    <h1>ドラマ相関図ノート</h1>
+    <p>キャラクター情報や関係、エピソードのメモを1枚のHTMLでまとめて管理できます。ブラウザだけで動作し、データはローカルに保存されます。</p>
+  </header>
+
+  <main class="grid">
+    <section>
+      <h2>起動とデータの扱い</h2>
+      <ol>
+        <li>この <strong>index.html</strong> をダブルクリックするだけでブラウザ上で動きます。インストールやビルドは不要です。</li>
+        <li>もし「ファイルの読み込みが制限されています」と表示される場合は、ターミナルで <code>python3 -m http.server 8000</code> を実行し、<code>http://localhost:8000</code> を開いてください。</li>
+        <li>入力した内容はブラウザのローカルストレージに自動保存されます。別端末で使うときは「データを書き出し / JSONを読み込む」でコピーできます。</li>
+      </ol>
+    </section>
+  </main>
+
+  <main class="grid two">
+    <section>
+      <h2>ストーリー概要・メモ</h2>
+      <textarea id="storyNote" placeholder="舞台設定、シーズンごとの目標、重要な伏線などをメモ"></textarea>
+      <div class="status" id="storyStatus">保存しました</div>
+    </section>
+
+    <section>
+      <h2>クイック統計</h2>
+      <div class="grid three">
+        <div class="stat"><strong id="statCharacters">0</strong><span>キャラクター</span></div>
+        <div class="stat"><strong id="statRelations">0</strong><span>関係リンク</span></div>
+        <div class="stat"><strong id="statTeams">0</strong><span>陣営・グループ</span></div>
+      </div>
+      <div class="actions" style="margin-top:14px;">
+        <button class="secondary" id="exportBtn">データを書き出し</button>
+        <button class="secondary" id="exportZipBtn" title="画像を含めてZIPでダウンロード">ZIPでダウンロード</button>
+        <label class="secondary" style="padding:10px 14px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+          <input type="file" id="importFile" accept="application/json" style="display:none;" />
+          JSONを読み込む
+        </label>
+      </div>
+    </section>
+  </main>
+
+  <main class="grid two">
+    <section>
+      <h2>キャラクター登録</h2>
+      <form id="characterForm">
+        <div class="row two">
+          <div>
+            <label for="name">名前</label>
+            <input type="text" id="name" required placeholder="例: 佐藤 光" />
+          </div>
+          <div>
+            <label for="role">役割 / 立場</label>
+            <input type="text" id="role" placeholder="例: 刑事、弁護士、社長" />
+          </div>
         </div>
-        
-        <ul id="taskList" class="task-list"></ul>
-        
-        <div id="emptyState" class="empty-state" style="display: none;">
-            タスクがありません
+        <div class="row two">
+          <div>
+            <label for="team">陣営 / グループ</label>
+            <input type="text" id="team" placeholder="例: 警察チーム、ライバル企業" />
+          </div>
+          <div>
+            <label for="color">タグカラー</label>
+            <input type="color" id="color" value="#9b5de5" />
+            <div class="color-swatches" id="characterColorChoices"></div>
+          </div>
         </div>
-    </div>
-    
-    <div id="offlineIndicator" class="offline-indicator">
-        オフラインモード
-    </div>
+        <div>
+          <label for="description">特徴・背景</label>
+          <textarea id="description" placeholder="人物の性格、経歴、秘密など"></textarea>
+        </div>
+        <div>
+          <label for="image">画像</label>
+          <div class="avatar-preview" id="avatarPreview" tabindex="0" role="button" aria-label="画像をここに追加">画像をここに追加</div>
+          <input type="file" id="image" accept="image/*" class="hidden-input" />
+        </div>
+        <div>
+          <label for="tags">タグ (カンマ区切り)</label>
+          <input type="text" id="tags" placeholder="家族, 友人, シーズン2" />
+        </div>
+        <div class="actions">
+          <button type="button" class="secondary" id="resetCharacter">キャンセル</button>
+          <button class="primary" type="submit">登録</button>
+        </div>
+      </form>
+    </section>
 
-    <script>
-        // タスク管理のメインロジック
-        class TaskManager {
-            constructor() {
-                this.tasks = [];
-                this.loadTasks();
-                this.initEventListeners();
-                this.renderTasks();
-                this.checkOnlineStatus();
-            }
+    <section>
+      <h2>関係登録</h2>
+      <form id="relationForm">
+        <div class="row two">
+          <div>
+            <label for="from">人物A</label>
+            <select id="from" required></select>
+          </div>
+          <div>
+            <label for="to">人物B</label>
+            <select id="to" required></select>
+          </div>
+        </div>
+        <div class="row two">
+          <div>
+            <label for="relation">関係性</label>
+            <input type="text" id="relation" placeholder="例: 同僚、幼なじみ、敵対" required />
+          </div>
+          <div>
+            <label for="weight">重要度 (1〜5)</label>
+            <select id="weight">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </div>
+        </div>
+        <div class="row two">
+          <div>
+            <label for="relationColor">タグカラー</label>
+            <input type="color" id="relationColor" value="#1e88e5" />
+            <div class="color-swatches" id="relationColorChoices"></div>
+          </div>
+          <div></div>
+        </div>
+        <div>
+          <label for="note">メモ</label>
+          <textarea id="note" placeholder="関係が生まれた経緯や最新のイベント"></textarea>
+        </div>
+        <div class="actions">
+          <button type="button" class="secondary" id="resetRelation">クリア</button>
+          <button class="primary" type="submit">登録</button>
+        </div>
+      </form>
+    </section>
+  </main>
 
-            initEventListeners() {
-                document.getElementById('addBtn').addEventListener('click', () => this.addTask());
-                document.getElementById('taskInput').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.addTask();
-                });
+  <main class="grid">
+    <section>
+      <div class="bar">
+        <h2>キャラクター一覧</h2>
+        <div style="flex:1"></div>
+        <select id="teamFilter">
+          <option value="">すべての陣営</option>
+        </select>
+        <input type="text" id="keyword" placeholder="名前や役割で検索" style="max-width:220px;" />
+      </div>
+      <div class="card-grid" id="characterGrid"></div>
+    </section>
+  </main>
 
-                window.addEventListener('online', () => this.updateOnlineStatus(true));
-                window.addEventListener('offline', () => this.updateOnlineStatus(false));
-            }
+  <main class="grid">
+    <section>
+      <div class="bar">
+        <h2>関係一覧</h2>
+        <div style="flex:1"></div>
+        <a class="primary" style="display:inline-block; padding:10px 14px; text-decoration:none; color:white;" href="relation-board.html" target="_blank" rel="noopener">関係図ページを開く</a>
+      </div>
+      <div class="grid" id="relationList" style="gap:10px;"></div>
+    </section>
+  </main>
 
-            loadTasks() {
-                const stored = localStorage.getItem('pwa-tasks');
-                if (stored) {
-                    this.tasks = JSON.parse(stored);
-                }
-            }
+  <main class="grid">
+    <section>
+      <h2>エピソード / シーズンメモ</h2>
+      <textarea id="episodeNote" placeholder="例: 第3話で事件が解決、シーズン2で新キャラ登場など"></textarea>
+      <div class="actions">
+        <button class="primary" id="saveEpisode">メモを保存</button>
+      </div>
+    </section>
+  </main>
 
-            saveTasks() {
-                localStorage.setItem('pwa-tasks', JSON.stringify(this.tasks));
-            }
+  <script>
+    const storageKey = 'drama-notebook-v1';
+    const defaultCharacterColor = '#9b5de5';
+    const defaultRelationColor = '#1e88e5';
+    const baseTagColors = ['#e53935', '#fb8c00', '#fdd835', '#43a047', '#1e88e5', '#3949ab', '#8e24aa', '#f06292', '#00acc1', '#6d4c41', '#9b5de5'];
 
-            addTask() {
-                const input = document.getElementById('taskInput');
-                const text = input.value.trim();
-                
-                if (!text) return;
+    const state = {
+      characters: [],
+      relations: [],
+      storyNote: '',
+      episodeNote: ''
+    };
 
-                const task = {
-                    id: Date.now(),
-                    text: text,
-                    completed: false,
-                    createdAt: new Date().toISOString()
-                };
+    let inlineEditId = '';
+    let inlineEditDraft = null;
 
-                this.tasks.unshift(task);
-                this.saveTasks();
-                this.renderTasks();
-                
-                input.value = '';
-                input.focus();
-            }
+    const $ = (id) => document.getElementById(id);
 
-            toggleTask(id) {
-                const task = this.tasks.find(t => t.id === id);
-                if (task) {
-                    task.completed = !task.completed;
-                    this.saveTasks();
-                    this.renderTasks();
-                }
-            }
+    // UUID helper with fallback
+    function uid() {
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+      }
+      // fallback: timestamp + random
+      return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,9);
+    }
 
-            deleteTask(id) {
-                this.tasks = this.tasks.filter(t => t.id !== id);
-                this.saveTasks();
-                this.renderTasks();
-            }
-
-            formatDate(dateString) {
-                const date = new Date(dateString);
-                const now = new Date();
-                const diff = now - date;
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                
-                if (days === 0) return '今日';
-                if (days === 1) return '昨日';
-                if (days < 7) return `${days}日前`;
-                
-                return date.toLocaleDateString('ja-JP');
-            }
-
-            renderTasks() {
-                const taskList = document.getElementById('taskList');
-                const emptyState = document.getElementById('emptyState');
-                
-                taskList.innerHTML = '';
-                
-                if (this.tasks.length === 0) {
-                    emptyState.style.display = 'block';
-                    return;
-                }
-                
-                emptyState.style.display = 'none';
-                
-                this.tasks.forEach(task => {
-                    const li = document.createElement('li');
-                    li.className = `task-item ${task.completed ? 'completed' : ''}`;
-                    
-                    li.innerHTML = `
-                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
-                        <span class="task-text">${this.escapeHtml(task.text)}</span>
-                        <span class="task-date">${this.formatDate(task.createdAt)}</span>
-                        <button class="delete-btn">削除</button>
-                    `;
-                    
-                    const checkbox = li.querySelector('.task-checkbox');
-                    const deleteBtn = li.querySelector('.delete-btn');
-                    
-                    checkbox.addEventListener('change', () => this.toggleTask(task.id));
-                    deleteBtn.addEventListener('click', () => this.deleteTask(task.id));
-                    
-                    taskList.appendChild(li);
-                });
-            }
-
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            checkOnlineStatus() {
-                this.updateOnlineStatus(navigator.onLine);
-            }
-
-            updateOnlineStatus(isOnline) {
-                const indicator = document.getElementById('offlineIndicator');
-                indicator.style.display = isOnline ? 'none' : 'block';
-            }
+    function loadState() {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        if (data && typeof data === 'object') {
+          Object.assign(state, data);
         }
+      } catch (e) {
+        console.warn('データの読み込みに失敗しました', e);
+      }
+    }
 
-        // Service Worker の登録
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
-                    const CACHE_NAME = 'task-manager-v1';
-                    const urlsToCache = [
-                        '/',
-                        '/index.html'
-                    ];
+    function saveState() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(state));
+        renderStats();
+      } catch (err) {
+        alert('ローカル保存に失敗しました。データ量が大きすぎる可能性があります。エクスポートしてから不要な画像を削除してください。');
+        console.error(err);
+      }
+    }
 
-                    self.addEventListener('install', event => {
-                        event.waitUntil(
-                            caches.open(CACHE_NAME)
-                                .then(cache => cache.addAll(urlsToCache))
-                        );
-                    });
-
-                    self.addEventListener('fetch', event => {
-                        event.respondWith(
-                            caches.match(event.request)
-                                .then(response => response || fetch(event.request))
-                        );
-                    });
-                `)).then(registration => {
-                    console.log('ServiceWorker registration successful');
-                }).catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
+    function applyDefaultColors() {
+      state.characters.forEach((c) => {
+        if (!c.color) c.color = defaultCharacterColor;
+        if (typeof c.tags === 'string') {
+          c.tags = c.tags.split(',').map((t) => t.trim()).filter(Boolean);
+        } else if (!Array.isArray(c.tags)) {
+          c.tags = [];
         }
+      });
+      state.relations.forEach((r) => {
+        if (!r.color) r.color = defaultRelationColor;
+      });
+    }
 
-        // アプリの初期化
-        document.addEventListener('DOMContentLoaded', () => {
-            new TaskManager();
+    function renderColorSwatches(container, input, onSelect) {
+      const targetContainer = typeof container === 'string' ? $(container) : container;
+      const targetInput = typeof input === 'string' ? $(input) : input;
+      if (!targetContainer || !targetInput) return;
+      targetContainer.innerHTML = '';
+      baseTagColors.forEach((color) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'color-swatch';
+        btn.style.background = color;
+        btn.title = color;
+        btn.addEventListener('click', () => {
+          targetInput.value = color;
+          if (typeof onSelect === 'function') onSelect(color);
         });
-    </script>
+        targetContainer.appendChild(btn);
+      });
+    }
+
+    function bindPreviewPicker(previewEl, fileInput) {
+      if (!previewEl || !fileInput) return;
+      const openPicker = () => fileInput.click();
+      previewEl.addEventListener('click', openPicker);
+      previewEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openPicker();
+        }
+      });
+    }
+
+    function renderCharacterOptions() {
+      const selects = [$('from'), $('to')];
+      selects.forEach((s) => {
+        if (!s) return;
+        s.innerHTML = '';
+        state.characters.forEach((c) => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          s.appendChild(opt);
+        });
+      });
+
+      const teamFilter = $('teamFilter');
+      const teams = Array.from(new Set(state.characters.map((c) => c.team).filter(Boolean)));
+      teamFilter.innerHTML = '<option value="">すべての陣営</option>';
+      teams.forEach((t) => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        teamFilter.appendChild(opt);
+      });
+    }
+
+    function renderCharacters() {
+      const grid = $('characterGrid');
+      grid.innerHTML = '';
+      const keyword = ($('keyword').value || '').toLowerCase();
+      const teamFilter = $('teamFilter').value;
+
+      const list = state.characters
+        .filter((c) => {
+          const hitKeyword = !keyword || (c.name || '').toLowerCase().includes(keyword) || (c.role || '').toLowerCase().includes(keyword);
+          const hitTeam = !teamFilter || c.team === teamFilter;
+          return hitKeyword && hitTeam;
+        })
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ja'));
+
+      list.forEach((c) => {
+        const card = document.createElement('div');
+        const isEditing = inlineEditId === c.id;
+        card.className = 'character-card';
+        card.dataset.id = c.id;
+        if (isEditing) card.classList.add('editing');
+        const band = document.createElement('div');
+        band.className = 'color-band';
+        const bandColor = isEditing && inlineEditDraft && inlineEditDraft.id === c.id
+          ? inlineEditDraft.color || defaultCharacterColor
+          : c.color || defaultCharacterColor;
+        band.style.background = bandColor;
+        card.appendChild(band);
+
+        if (isEditing) {
+          renderInlineCharacterEditor(card, c, band);
+          grid.appendChild(card);
+          return;
+        }
+
+        if (c.image) {
+          const img = document.createElement('img');
+          img.className = 'avatar';
+          img.src = c.image;
+          img.alt = `${c.name}の画像`;
+          card.appendChild(img);
+        }
+
+        const rolePill = document.createElement('span');
+        rolePill.className = 'pill';
+        rolePill.textContent = c.role || '役割未設定';
+        card.appendChild(rolePill);
+
+        if (c.team) {
+          const teamPill = document.createElement('span');
+          teamPill.className = 'pill';
+          teamPill.textContent = c.team;
+          teamPill.style.background = 'rgba(0,168,232,0.1)';
+          teamPill.style.color = '#046fa7';
+          card.appendChild(teamPill);
+        }
+
+        const h4 = document.createElement('h4');
+        h4.textContent = c.name;
+        card.appendChild(h4);
+
+        const desc = document.createElement('p');
+        desc.className = 'muted';
+        desc.textContent = c.description || 'メモなし';
+        card.appendChild(desc);
+
+        if (c.tags && c.tags.length) {
+          const tags = document.createElement('div');
+          c.tags.forEach((t) => {
+            const tag = document.createElement('span');
+            tag.className = 'pill tag';
+            tag.textContent = t;
+            tags.appendChild(tag);
+          });
+          card.appendChild(tags);
+        }
+
+        const relCount = state.relations.filter((r) => r.from === c.id || r.to === c.id).length;
+        const relInfo = document.createElement('p');
+        relInfo.className = 'muted';
+        relInfo.textContent = `リンク: ${relCount} 件`;
+        card.appendChild(relInfo);
+
+        const actions = document.createElement('div');
+        actions.className = 'card-actions';
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'button-ghost';
+        editBtn.textContent = '編集';
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          startInlineEdit(c);
+        });
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'button-ghost';
+        deleteBtn.textContent = '削除';
+        deleteBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteCharacter(c.id);
+        });
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+        card.appendChild(actions);
+
+        // Only open side form when clicking the name header (avoid opening from whitespace)
+        h4.addEventListener('click', (e) => {
+          e.stopPropagation();
+          startInlineEdit(c);
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function renderInlineCharacterEditor(card, character, bandEl) {
+      let draft = (inlineEditDraft && inlineEditId === character.id) ? inlineEditDraft : {
+        id: character.id,
+        name: character.name || '',
+        role: character.role || '',
+        team: character.team || '',
+        color: character.color || defaultCharacterColor,
+        description: character.description || '',
+        tagsText: Array.isArray(character.tags) ? character.tags.join(', ') : '',
+        image: character.image || ''
+      };
+      inlineEditDraft = draft;
+
+      const setDraft = (patch) => {
+        draft = { ...draft, ...patch };
+        inlineEditDraft = draft;
+        if (patch.color && bandEl) {
+          bandEl.style.background = patch.color || defaultCharacterColor;
+        }
+      };
+
+      const form = document.createElement('div');
+      form.className = 'inline-form';
+
+      const nameField = document.createElement('div');
+      const nameLabel = document.createElement('label');
+      nameLabel.textContent = '名前';
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.value = draft.name;
+      nameInput.placeholder = '名前';
+      nameInput.addEventListener('input', (e) => setDraft({ name: e.target.value }));
+      nameField.append(nameLabel, nameInput);
+      form.appendChild(nameField);
+
+      const roleField = document.createElement('div');
+      const roleLabel = document.createElement('label');
+      roleLabel.textContent = '役割 / 立場';
+      const roleInput = document.createElement('input');
+      roleInput.type = 'text';
+      roleInput.value = draft.role;
+      roleInput.placeholder = '例: 刑事、弁護士、社長';
+      roleInput.addEventListener('input', (e) => setDraft({ role: e.target.value }));
+      roleField.append(roleLabel, roleInput);
+      form.appendChild(roleField);
+
+      const teamField = document.createElement('div');
+      const teamLabel = document.createElement('label');
+      teamLabel.textContent = '陣営 / グループ';
+      const teamInput = document.createElement('input');
+      teamInput.type = 'text';
+      teamInput.value = draft.team;
+      teamInput.placeholder = '例: 警察チーム、ライバル企業';
+      teamInput.addEventListener('input', (e) => setDraft({ team: e.target.value }));
+      teamField.append(teamLabel, teamInput);
+      form.appendChild(teamField);
+
+      const colorField = document.createElement('div');
+      const colorLabel = document.createElement('label');
+      colorLabel.textContent = 'タグカラー';
+      const colorInput = document.createElement('input');
+      colorInput.type = 'color';
+      colorInput.value = draft.color || defaultCharacterColor;
+      colorInput.addEventListener('input', (e) => setDraft({ color: e.target.value }));
+      const colorChoices = document.createElement('div');
+      colorChoices.className = 'color-swatches';
+      renderColorSwatches(colorChoices, colorInput, (color) => setDraft({ color }));
+      colorField.append(colorLabel, colorInput, colorChoices);
+      form.appendChild(colorField);
+
+      const descField = document.createElement('div');
+      const descLabel = document.createElement('label');
+      descLabel.textContent = '特徴・背景';
+      const descInput = document.createElement('textarea');
+      descInput.value = draft.description;
+      descInput.placeholder = '人物の性格、経歴、秘密など';
+      descInput.addEventListener('input', (e) => setDraft({ description: e.target.value }));
+      descField.append(descLabel, descInput);
+      form.appendChild(descField);
+
+      const imageField = document.createElement('div');
+      const imageLabel = document.createElement('label');
+      imageLabel.textContent = '画像';
+      const preview = document.createElement('div');
+      preview.className = 'avatar-preview';
+      preview.tabIndex = 0;
+      preview.setAttribute('role', 'button');
+      preview.setAttribute('aria-label', '画像をここに追加');
+      updateAvatarPreview(draft.image, preview);
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.className = 'hidden-input';
+      bindPreviewPicker(preview, fileInput);
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          try {
+            const src = await resizeImageFileToDataURL(file, 900, 0.82);
+            setDraft({ image: src });
+            updateAvatarPreview(src, preview);
+          } catch (err) {
+            const src = await readFileAsDataURL(file);
+            setDraft({ image: src });
+            updateAvatarPreview(src, preview);
+          }
+        }
+      });
+      imageField.append(imageLabel, preview, fileInput);
+      form.appendChild(imageField);
+
+      const tagsField = document.createElement('div');
+      const tagsLabel = document.createElement('label');
+      tagsLabel.textContent = 'タグ (カンマ区切り)';
+      const tagsInput = document.createElement('input');
+      tagsInput.type = 'text';
+      tagsInput.value = draft.tagsText;
+      tagsInput.placeholder = '例: 家族, シーズン2';
+      tagsInput.addEventListener('input', (e) => setDraft({ tagsText: e.target.value }));
+      tagsField.append(tagsLabel, tagsInput);
+      form.appendChild(tagsField);
+
+      const actions = document.createElement('div');
+      actions.className = 'inline-actions';
+      const cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'secondary';
+      cancelBtn.textContent = '編集をキャンセル';
+      cancelBtn.addEventListener('click', cancelInlineEdit);
+      const saveBtn = document.createElement('button');
+      saveBtn.type = 'button';
+      saveBtn.className = 'primary';
+      saveBtn.textContent = '登録';
+      saveBtn.addEventListener('click', () => saveInlineEdit(character.id));
+      actions.append(cancelBtn, saveBtn);
+      form.appendChild(actions);
+      card.appendChild(form);
+
+      setTimeout(() => nameInput.focus(), 0);
+    }
+
+    function startInlineEdit(character) {
+      inlineEditId = character.id;
+      inlineEditDraft = {
+        id: character.id,
+        name: character.name || '',
+        role: character.role || '',
+        team: character.team || '',
+        color: character.color || defaultCharacterColor,
+        description: character.description || '',
+        tagsText: Array.isArray(character.tags) ? character.tags.join(', ') : '',
+        image: character.image || ''
+      };
+      renderCharacters();
+      const card = document.querySelector(`.character-card[data-id="${character.id}"]`);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function cancelInlineEdit() {
+      inlineEditId = '';
+      inlineEditDraft = null;
+      renderCharacters();
+    }
+
+    async function saveInlineEdit(id) {
+      if (!inlineEditDraft || inlineEditId !== id) {
+        cancelInlineEdit();
+        return;
+      }
+      const payload = {
+        id,
+        name: (inlineEditDraft.name || '').trim(),
+        role: (inlineEditDraft.role || '').trim(),
+        team: (inlineEditDraft.team || '').trim(),
+        color: inlineEditDraft.color || defaultCharacterColor,
+        description: (inlineEditDraft.description || '').trim(),
+        tags: (inlineEditDraft.tagsText || '').split(',').map((t) => t.trim()).filter(Boolean),
+        image: inlineEditDraft.image || ''
+      };
+      if (!payload.name) {
+        alert('名前は必須です');
+        return;
+      }
+      const idx = state.characters.findIndex((c) => c.id === id);
+      if (idx >= 0) {
+        state.characters[idx] = payload;
+      }
+      inlineEditId = '';
+      inlineEditDraft = null;
+      saveState();
+      renderCharacterOptions();
+      renderCharacters();
+      renderRelations();
+    }
+
+    function renderRelations() {
+      const list = $('relationList');
+      list.innerHTML = '';
+      state.relations
+        .slice()
+        .sort((a, b) => Number(b.weight) - Number(a.weight))
+        .forEach((r) => {
+          const a = state.characters.find((c) => c.id === r.from);
+          const b = state.characters.find((c) => c.id === r.to);
+          if (!a || !b) return;
+          const relationColor = r.color || defaultRelationColor;
+          const item = document.createElement('div');
+          item.className = 'relationship';
+          item.style.borderLeft = `4px solid ${relationColor}`;
+
+          const text = document.createElement('div');
+          // safe text construction (avoid innerHTML with user input)
+          const title = document.createElement('div');
+          const aName = document.createElement('strong'); aName.textContent = a.name;
+          const sep = document.createTextNode(' ⇔ ');
+          const bName = document.createElement('strong'); bName.textContent = b.name;
+          title.appendChild(aName);
+          title.appendChild(sep);
+          title.appendChild(bName);
+
+          const relSpan = document.createElement('div');
+          relSpan.className = 'muted';
+          relSpan.textContent = r.relation || '';
+          text.appendChild(title);
+          text.appendChild(relSpan);
+
+          if (r.note) {
+            const note = document.createElement('div');
+            note.className = 'muted';
+            note.textContent = r.note;
+            text.appendChild(note);
+          }
+
+          const meta = document.createElement('div');
+          meta.className = 'relation-meta';
+
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          const weightValue = r.weight || '-';
+          chip.textContent = `重要度 ${weightValue}`;
+          chip.style.background = '#fff';
+          chip.style.color = relationColor;
+          chip.style.borderColor = relationColor;
+
+          const colorBadge = document.createElement('span');
+          colorBadge.className = 'chip';
+          const dot = document.createElement('span');
+          dot.className = 'color-dot';
+          dot.style.background = relationColor;
+          dot.style.borderColor = relationColor;
+          const colorLabel = document.createElement('span');
+          colorLabel.textContent = 'タグカラー';
+          colorLabel.style.marginLeft = '6px';
+          colorBadge.style.borderColor = relationColor;
+          colorBadge.style.color = relationColor;
+          colorBadge.style.background = '#fff';
+          colorBadge.append(dot, colorLabel);
+
+          item.appendChild(text);
+          meta.appendChild(chip);
+          meta.appendChild(colorBadge);
+          item.appendChild(meta);
+          list.appendChild(item);
+        });
+    }
+
+    function renderStats() {
+      $('statCharacters').textContent = state.characters.length;
+      $('statRelations').textContent = state.relations.length;
+      const teams = new Set(state.characters.map((c) => c.team).filter(Boolean));
+      $('statTeams').textContent = teams.size;
+    }
+
+    function deleteCharacter(id) {
+      const target = state.characters.find((c) => c.id === id);
+      if (!target) return;
+      if (!confirm(`${target.name}を削除しますか？関係リンクも消えます。`)) return;
+      state.characters = state.characters.filter((c) => c.id !== id);
+      state.relations = state.relations.filter((r) => r.from !== id && r.to !== id);
+      if (inlineEditId === id) {
+        inlineEditId = '';
+        inlineEditDraft = null;
+      }
+      if ($('characterForm').dataset.editId === id) {
+        $('characterForm').reset();
+        $('characterForm').dataset.editId = '';
+        updateAvatarPreview('');
+        updateCharacterResetLabel(false);
+      }
+      saveState();
+      renderCharacterOptions();
+      renderCharacters();
+      renderRelations();
+    }
+
+    function updateAvatarPreview(src, targetEl) {
+      const preview = targetEl || $('avatarPreview');
+      if (!preview) return;
+      preview.innerHTML = '';
+      if (src) {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = '選択した画像のプレビュー';
+        preview.appendChild(img);
+      } else {
+        const text = document.createElement('div');
+        text.textContent = '画像をここに追加';
+        const hint = document.createElement('div');
+        hint.className = 'muted';
+        hint.textContent = 'クリック / タップで追加';
+        preview.appendChild(text);
+        preview.appendChild(hint);
+      }
+    }
+
+    // Always show "キャンセル" on the button; title differs by mode
+    function updateCharacterResetLabel(isEditing) {
+      const btn = $('resetCharacter');
+      if (!btn) return;
+      btn.textContent = 'キャンセル';
+      btn.title = isEditing ? '編集をキャンセル（保存せず閉じる）' : '入力欄をクリア';
+    }
+
+    function showStoryStatus(message = '保存しました') {
+      const status = $('storyStatus');
+      if (!status) return;
+      status.textContent = message;
+      status.classList.add('show');
+      setTimeout(() => status.classList.remove('show'), 1400);
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Resize image to max dimension (px) and return dataURL (JPEG)
+    function resizeImageFileToDataURL(file, maxDimension = 800, quality = 0.8) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const reader = new FileReader();
+        reader.onload = () => {
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let { width, height } = img;
+            if (width > maxDimension || height > maxDimension) {
+              const ratio = width / height;
+              if (ratio > 1) {
+                width = maxDimension;
+                height = Math.round(maxDimension / ratio);
+              } else {
+                height = maxDimension;
+                width = Math.round(maxDimension * ratio);
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve(dataUrl);
+          };
+          img.onerror = (e) => reject(e);
+          img.src = reader.result;
+        };
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function loadCharacterToForm(id) {
+      const c = state.characters.find((x) => x.id === id);
+      if (!c) return;
+      $('name').value = c.name;
+      $('role').value = c.role || '';
+      $('team').value = c.team || '';
+      $('color').value = c.color || defaultCharacterColor;
+      $('description').value = c.description || '';
+      $('tags').value = c.tags ? c.tags.join(', ') : '';
+      $('characterForm').dataset.editId = c.id;
+      $('image').value = '';
+      updateAvatarPreview(c.image || '');
+      updateCharacterResetLabel(true);
+      $('name').focus();
+      $('characterForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function handleCharacterSubmit(e) {
+      e.preventDefault();
+      const form = e.target;
+      const id = form.dataset.editId || uid();
+      const existing = state.characters.find((c) => c.id === id);
+      const file = $('image').files[0];
+
+      let image = existing ? existing.image : '';
+      if (file) {
+        try {
+          // resize and convert to jpeg dataURL to reduce size
+          image = await resizeImageFileToDataURL(file, 900, 0.82);
+        } catch (err) {
+          console.warn('画像リサイズ失敗、元のDataURLを使用', err);
+          image = await readFileAsDataURL(file);
+        }
+      }
+
+      const payload = {
+        id,
+        name: $('name').value.trim(),
+        role: $('role').value.trim(),
+        team: $('team').value.trim(),
+        color: $('color').value || defaultCharacterColor,
+        description: $('description').value.trim(),
+        tags: $('tags').value.split(',').map((t) => t.trim()).filter(Boolean),
+        image
+      };
+      if (!payload.name) return alert('名前は必須です');
+
+      const existsIdx = state.characters.findIndex((c) => c.id === id);
+      if (existsIdx >= 0) {
+        state.characters[existsIdx] = payload;
+      } else {
+        state.characters.push(payload);
+      }
+
+      form.reset();
+      form.dataset.editId = '';
+      updateAvatarPreview('');
+      updateCharacterResetLabel(false);
+      saveState();
+      renderCharacterOptions();
+      renderCharacters();
+    }
+
+    function relationExists(from, to, relation) {
+      return state.relations.some(r => (r.from === from && r.to === to && r.relation === relation));
+    }
+
+    function handleRelationSubmit(e) {
+      e.preventDefault();
+      if (state.characters.length < 2) return alert('先にキャラクターを2人以上登録してください');
+      const from = $('from').value;
+      const to = $('to').value;
+      if (from === to) return alert('同じ人物同士は選べません');
+      const relation = $('relation').value.trim();
+      if (!relation) return alert('関係性を入力してください');
+      const note = $('note').value.trim();
+      const weight = $('weight').value;
+      const color = $('relationColor').value || defaultRelationColor;
+
+      // check duplicate (same direction & same relation)
+      if (relationExists(from, to, relation)) {
+        return alert('同じ関係がすでに存在します');
+      }
+
+      state.relations.push({ id: uid(), from, to, relation, note, weight, color });
+      e.target.reset();
+      saveState();
+      renderRelations();
+      renderCharacters();
+    }
+
+    function handleExport() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'drama-notebook.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      // revoke after a tick
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+
+    function handleImport(file) {
+      if (!file) return;
+      if (!confirm('インポートすると現在のデータが上書きされます。よろしいですか？')) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          state.characters = Array.isArray(data.characters) ? data.characters : [];
+          state.relations = Array.isArray(data.relations) ? data.relations : [];
+          state.storyNote = data.storyNote || '';
+          state.episodeNote = data.episodeNote || '';
+          applyDefaultColors();
+          inlineEditId = '';
+          inlineEditDraft = null;
+          $('storyNote').value = state.storyNote;
+          $('episodeNote').value = state.episodeNote;
+          saveState();
+          renderCharacterOptions();
+          renderCharacters();
+          renderRelations();
+        } catch (err) {
+          alert('JSONの読み込みに失敗しました');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // ZIP export (includes images as files if available)
+    async function handleExportZip() {
+      if (typeof JSZip === 'undefined') {
+        alert('JSZipが読み込まれていません。ネットワーク接続を確認してください。');
+        return;
+      }
+      const zip = new JSZip();
+      // add JSON
+      zip.file('drama-notebook.json', JSON.stringify(state, null, 2));
+      // add images (embedded dataURLs -> convert to binary)
+      const imgFolder = zip.folder('images');
+      for (const c of state.characters) {
+        if (c.image && c.image.startsWith('data:')) {
+          try {
+            const arr = dataURLtoUint8Array(c.image);
+            const ext = dataURLtoExt(c.image) || 'jpg';
+            imgFolder.file(`${c.id || uid()}.${ext}`, arr, { binary: true });
+          } catch (err) {
+            console.warn('画像のZIP同梱に失敗しました', c.id, err);
+          }
+        }
+      }
+      // optional README
+      zip.file('README.txt', 'drama notebook export\nIncludes drama-notebook.json and images/ if available.\n');
+
+      try {
+        const content = await zip.generateAsync({ type: 'blob' });
+        const url = URL.createObjectURL(content);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'drama-notebook.zip';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      } catch (err) {
+        console.error(err);
+        alert('ZIP生成に失敗しました');
+      }
+    }
+
+    function dataURLtoUint8Array(dataURL) {
+      const parts = dataURL.split(',');
+      const meta = parts[0];
+      const base64 = parts[1];
+      const binary = atob(base64);
+      const len = binary.length;
+      const u8 = new Uint8Array(len);
+      for (let i = 0; i < len; i++) u8[i] = binary.charCodeAt(i);
+      return u8;
+    }
+    function dataURLtoExt(dataURL) {
+      const m = dataURL.match(/^data:image\/([^;]+)/);
+      return m ? m[1].replace('jpeg','jpg') : null;
+    }
+
+    // debounce helper
+    function debounce(fn, wait = 400) {
+      let t;
+      return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), wait);
+      };
+    }
+
+    function init() {
+      loadState();
+      applyDefaultColors();
+      $('storyNote').value = state.storyNote || '';
+      $('episodeNote').value = state.episodeNote || '';
+      renderColorSwatches('characterColorChoices', 'color', (color) => { $('color').value = color; });
+      renderColorSwatches('relationColorChoices', 'relationColor', (color) => { $('relationColor').value = color; });
+      bindPreviewPicker($('avatarPreview'), $('image'));
+      updateAvatarPreview('');
+      updateCharacterResetLabel(false);
+      renderCharacterOptions();
+      renderCharacters();
+      renderRelations();
+      renderStats();
+
+      $('characterForm').addEventListener('submit', handleCharacterSubmit);
+      $('relationForm').addEventListener('submit', handleRelationSubmit);
+      $('teamFilter').addEventListener('change', renderCharacters);
+      $('keyword').addEventListener('input', renderCharacters);
+
+      // Cancel button: if editing -> cancel edits and close (reset form & exit edit mode)
+      // if not editing -> just clear the form
+      $('resetCharacter').addEventListener('click', () => {
+        const form = $('characterForm');
+        if (form.dataset.editId) {
+          // discard edits and exit edit mode
+          form.dataset.editId = '';
+          form.reset();
+          updateAvatarPreview('');
+          updateCharacterResetLabel(false);
+          // optionally refocus to name input
+          $('name').blur();
+          return;
+        }
+        // not editing: simply clear inputs
+        form.reset();
+        updateAvatarPreview('');
+        updateCharacterResetLabel(false);
+      });
+
+      $('resetRelation').addEventListener('click', () => {
+        $('relationForm').reset();
+        $('relationColor').value = defaultRelationColor;
+      });
+
+      // debounce storyNote autosave
+      const saveStoryDebounced = debounce(() => {
+        state.storyNote = $('storyNote').value;
+        saveState();
+        showStoryStatus('自動保存しました');
+      }, 800);
+      $('storyNote').addEventListener('input', saveStoryDebounced);
+
+      $('saveEpisode').addEventListener('click', () => {
+        state.episodeNote = $('episodeNote').value;
+        saveState();
+        showStoryStatus('保存しました');
+      });
+
+      $('image').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          try {
+            const src = await resizeImageFileToDataURL(file, 900, 0.82);
+            updateAvatarPreview(src);
+          } catch (err) {
+            const src = await readFileAsDataURL(file);
+            updateAvatarPreview(src);
+          }
+        } else {
+          updateAvatarPreview('');
+        }
+      });
+
+      $('exportBtn').addEventListener('click', handleExport);
+      $('exportZipBtn').addEventListener('click', handleExportZip);
+      $('importFile').addEventListener('change', (e) => {
+        const f = e.target.files[0];
+        $('importFile').value = '';
+        handleImport(f);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
+</html>
+
 </html>
